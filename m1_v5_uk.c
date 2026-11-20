@@ -1210,6 +1210,7 @@ void rgb_matrix_hs_indicator(void) {
  *    dunkel. Auf der Grundebene bleibt alles normal.
  *  - Verbindung: Solange Fn gehalten wird, leuchtet die Taste des aktuellen
  *    Modus dauerhaft: 1/2/3 = Bluetooth (blau), 4 = 2.4 GHz (grün), 5 = Kabel (weiß).
+ *    Zusätzlich zeigt die Leertaste den Akkustand (rot = leer ... grün = voll).
  *  - Aufwachen: Nach dem Aufwachen aus dem Energiesparmodus zeigt die Leertaste
  *    6 Sekunden lang den Akkustand (rot = leer ... grün = voll) und die Taste
  *    des aktuellen Modus leuchtet mit.
@@ -1264,7 +1265,7 @@ static void iso_ind_draw(uint8_t led_min, uint8_t led_max) {
     if (fn_held || wake_show) iso_ind_connection(led_min, led_max);
 
 #ifdef WIRELESS_ENABLE
-    if (wake_show) {
+    if (wake_show || fn_held) {
         uint8_t bat = *md_getp_bat();
         if (bat > 100) bat = 100;
         RGB rgb = hsv_to_rgb((HSV){.h = (uint8_t)((uint16_t)bat * 85 / 100), .s = 255, .v = RGB_MATRIX_MAXIMUM_BRIGHTNESS});
