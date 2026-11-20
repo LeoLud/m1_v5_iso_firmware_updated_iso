@@ -925,7 +925,7 @@
             "animation": "solid_color",
             "hue": 150,
             "sat": 110,
-            "val": 100,
+            "val": 70,
             "speed": 255
         },
         "sleep": true
