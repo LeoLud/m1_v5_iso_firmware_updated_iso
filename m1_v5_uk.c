@@ -1206,7 +1206,7 @@ void rgb_matrix_hs_indicator(void) {
  * Zusätzliche Anzeigen (ISO-Port)
  *
  *  - Ebene: Solange eine Ebene über der Grundebene aktiv ist, leuchtet F1..F4
- *    für Ebene 1..4 (Nummern wie in VIA) weiß, die anderen drei F-Tasten sind
+ *    für Ebene 1..4 (Nummern wie in VIA) grün, die anderen drei F-Tasten sind
  *    dunkel. Auf der Grundebene bleibt alles normal.
  *  - Verbindung: Solange Fn gehalten wird, leuchtet die Taste des aktuellen
  *    Modus dauerhaft: 1/2/3 = Bluetooth (blau), 4 = 2.4 GHz (grün), 5 = Kabel (weiß).
@@ -1248,7 +1248,7 @@ static void iso_ind_draw(uint8_t led_min, uint8_t led_max) {
     if (top > def) {
         for (uint8_t i = 0; i < 4; i++) {
             if (top == i + 1)
-                iso_ind_set(iso_ind_fkey_led[i], led_min, led_max, 0xFF, 0xFF, 0xFF);
+                iso_ind_set(iso_ind_fkey_led[i], led_min, led_max, 0x00, 0xFF, 0x00); // grün
             else
                 iso_ind_set(iso_ind_fkey_led[i], led_min, led_max, 0x00, 0x00, 0x00);
         }
