@@ -923,9 +923,9 @@
         "speed_steps": 51,
         "default": {
             "animation": "solid_color",
-            "hue": 150,
-            "sat": 110,
-            "val": 70,
+            "hue": 149,
+            "sat": 255,
+            "val": 82,
             "speed": 255
         },
         "sleep": true
