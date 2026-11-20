@@ -1212,13 +1212,13 @@ void rgb_matrix_hs_indicator(void) {
  *    Modus dauerhaft: 1/2/3 = Bluetooth (blau), 4 = 2.4 GHz (grün), 5 = Kabel (weiß).
  *    Zusätzlich zeigt die Leertaste den Akkustand (rot = leer ... grün = voll).
  *  - Aufwachen: Nach dem Aufwachen aus dem Energiesparmodus zeigt die Leertaste
- *    6 Sekunden lang den Akkustand (rot = leer ... grün = voll) und die Taste
+ *    2 Sekunden lang den Akkustand (rot = leer ... grün = voll) und die Taste
  *    des aktuellen Modus leuchtet mit.
  *
  * Läuft vor den Statusanzeigen der Firmware; deren Blinken (z. B. Kopplung)
  * liegt also weiterhin obenauf.
  * ------------------------------------------------------------------------- */
-#define ISO_IND_WAKE_MS      6000
+#define ISO_IND_WAKE_MS      2000
 #define ISO_IND_LED_SPACE    82
 static const uint8_t iso_ind_fkey_led[4] = {22, 21, 20, 19}; // F1, F2, F3, F4
 static uint32_t iso_ind_wake_timer = 0;
