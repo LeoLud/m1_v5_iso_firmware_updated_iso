@@ -20,22 +20,23 @@
 #define MD_DONGLE_PRODUCT                   "M1 V5"
 
 /* Device Connection RGB Indicator Light Index And Color */
-#define HS_RGB_BLINK_INDEX_BT1              48
-#define HS_RGB_BLINK_INDEX_BT2              47
-#define HS_RGB_BLINK_INDEX_BT3              46
-#define HS_RGB_BLINK_INDEX_2G4              45
-#define HS_RGB_BLINK_INDEX_USB              44
+/* ISO-Port: Verbindungstasten auf Fn + 1..5 (BT1, BT2, BT3, 2.4G, USB) */
+#define HS_RGB_BLINK_INDEX_BT1              25
+#define HS_RGB_BLINK_INDEX_BT2              26
+#define HS_RGB_BLINK_INDEX_BT3              27
+#define HS_RGB_BLINK_INDEX_2G4              28
+#define HS_RGB_BLINK_INDEX_USB              29
 
 #define HS_LBACK_COLOR_BT1                  RGB_BLUE
 #define HS_LBACK_COLOR_BT2                  RGB_BLUE
 #define HS_LBACK_COLOR_BT3                  RGB_BLUE
-#define HS_LBACK_COLOR_2G4                  RGB_RED
+#define HS_LBACK_COLOR_2G4                  RGB_GREEN
 #define HS_LBACK_COLOR_USB                  RGB_WHITE
 
 #define HS_PAIR_COLOR_BT1                   RGB_BLUE
 #define HS_PAIR_COLOR_BT2                   RGB_BLUE
 #define HS_PAIR_COLOR_BT3                   RGB_BLUE
-#define HS_PAIR_COLOR_2G4                   RGB_RED
+#define HS_PAIR_COLOR_2G4                   RGB_GREEN
 #define HS_PAIR_COLOR_USB                   RGB_WHITE
 
 /* Battery */
