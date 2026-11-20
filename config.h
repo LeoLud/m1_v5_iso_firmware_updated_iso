@@ -30,13 +30,14 @@
 #define HS_LBACK_COLOR_BT1                  RGB_BLUE
 #define HS_LBACK_COLOR_BT2                  RGB_BLUE
 #define HS_LBACK_COLOR_BT3                  RGB_BLUE
-#define HS_LBACK_COLOR_2G4                  RGB_GREEN
+// 2.4G grün. Benannte Felder, weil RGB hier intern in der Reihenfolge g, r, b liegt.
+#define HS_LBACK_COLOR_2G4                  .r = 0x00, .g = 0xFF, .b = 0x00
 #define HS_LBACK_COLOR_USB                  RGB_WHITE
 
 #define HS_PAIR_COLOR_BT1                   RGB_BLUE
 #define HS_PAIR_COLOR_BT2                   RGB_BLUE
 #define HS_PAIR_COLOR_BT3                   RGB_BLUE
-#define HS_PAIR_COLOR_2G4                   RGB_GREEN
+#define HS_PAIR_COLOR_2G4                   .r = 0x00, .g = 0xFF, .b = 0x00
 #define HS_PAIR_COLOR_USB                   RGB_WHITE
 
 /* Battery */
