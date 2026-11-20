@@ -1202,6 +1202,77 @@ void rgb_matrix_hs_indicator(void) {
     }
 }
 
+/* ---------------------------------------------------------------------------
+ * Zusätzliche Anzeigen (ISO-Port)
+ *
+ *  - Ebene: Solange eine Ebene über der Grundebene aktiv ist, leuchtet F1..F4
+ *    für Ebene 1..4 (Nummern wie in VIA) weiß, die anderen drei F-Tasten sind
+ *    dunkel. Auf der Grundebene bleibt alles normal.
+ *  - Verbindung: Solange Fn gehalten wird, leuchtet die Taste des aktuellen
+ *    Modus dauerhaft: 1/2/3 = Bluetooth (blau), 4 = 2.4 GHz (grün), 5 = Kabel (weiß).
+ *  - Aufwachen: Nach dem Aufwachen aus dem Energiesparmodus zeigt die Leertaste
+ *    2 Sekunden lang den Akkustand (rot = leer ... grün = voll) und die Taste
+ *    des aktuellen Modus leuchtet mit.
+ *
+ * Läuft vor den Statusanzeigen der Firmware; deren Blinken (z. B. Kopplung)
+ * liegt also weiterhin obenauf.
+ * ------------------------------------------------------------------------- */
+#define ISO_IND_WAKE_MS      2000
+#define ISO_IND_LED_SPACE    82
+static const uint8_t iso_ind_fkey_led[4] = {22, 21, 20, 19}; // F1, F2, F3, F4
+static uint32_t iso_ind_wake_timer = 0;
+
+static void iso_ind_set(uint8_t led, uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, uint8_t b) {
+    if (led >= led_min && led < led_max) rgb_matrix_set_color(led, r, g, b);
+}
+
+static void iso_ind_connection(uint8_t led_min, uint8_t led_max) {
+#ifdef WIRELESS_ENABLE
+    switch (wireless_get_current_devs()) {
+        case DEVS_BT1: iso_ind_set(HS_RGB_BLINK_INDEX_BT1, led_min, led_max, 0x00, 0x00, 0xFF); break;
+        case DEVS_BT2: iso_ind_set(HS_RGB_BLINK_INDEX_BT2, led_min, led_max, 0x00, 0x00, 0xFF); break;
+        case DEVS_BT3: iso_ind_set(HS_RGB_BLINK_INDEX_BT3, led_min, led_max, 0x00, 0x00, 0xFF); break;
+        case DEVS_2G4: iso_ind_set(HS_RGB_BLINK_INDEX_2G4, led_min, led_max, 0x00, 0xFF, 0x00); break;
+        case DEVS_USB: iso_ind_set(HS_RGB_BLINK_INDEX_USB, led_min, led_max, 0xFF, 0xFF, 0xFF); break;
+        default: break;
+    }
+#endif
+}
+
+static void iso_ind_draw(uint8_t led_min, uint8_t led_max) {
+    if (rgbrec_is_started()) return;
+
+    // Ebene auf F1..F4
+    uint8_t def = get_highest_layer(default_layer_state);
+    uint8_t top = get_highest_layer(layer_state | default_layer_state);
+    if (top > def) {
+        for (uint8_t i = 0; i < 4; i++) {
+            if (top == i + 1)
+                iso_ind_set(iso_ind_fkey_led[i], led_min, led_max, 0xFF, 0xFF, 0xFF);
+            else
+                iso_ind_set(iso_ind_fkey_led[i], led_min, led_max, 0x00, 0x00, 0x00);
+        }
+    }
+
+    // Verbindung, solange Fn gehalten wird
+    bool fn_held = layer_state & (((layer_state_t)1 << _FL) | ((layer_state_t)1 << _MFL));
+
+    // Nach dem Aufwachen: Akku auf der Leertaste + Verbindung
+    bool wake_show = iso_ind_wake_timer && timer_elapsed32(iso_ind_wake_timer) < ISO_IND_WAKE_MS;
+    if (iso_ind_wake_timer && !wake_show) iso_ind_wake_timer = 0;
+
+    if (fn_held || wake_show) iso_ind_connection(led_min, led_max);
+
+#ifdef WIRELESS_ENABLE
+    if (wake_show) {
+        uint8_t bat = *md_getp_bat();
+        if (bat > 100) bat = 100;
+        RGB rgb = hsv_to_rgb((HSV){.h = (uint8_t)((uint16_t)bat * 85 / 100), .s = 255, .v = RGB_MATRIX_MAXIMUM_BRIGHTNESS});
+        iso_ind_set(ISO_IND_LED_SPACE, led_min, led_max, rgb.r, rgb.g, rgb.b);
+    }
+#endif
+}
+
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 
     if (rgb_matrix_indicators_advanced_user(led_min, led_max) != true) {
@@ -1209,13 +1280,15 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
         return false;
     }
 
+    iso_ind_draw(led_min, led_max);
+
     if (ee_clr_timer && timer_elapsed32(ee_clr_timer) > 3000) {
         hs_reset_settings();
         ee_clr_timer = 0;
     }
 
     if (host_keyboard_led_state().caps_lock)
-        rgb_matrix_set_color(HS_RGB_INDEX_CAPS, 0x20, 0x20, 0x20);
+        rgb_matrix_set_color(HS_RGB_INDEX_CAPS, 0xFF, 0xFF, 0xFF); // ISO-Port: Caps Lock weiß, volle Helligkeit
 
     if (!keymap_is_mac_system() && keymap_config.no_gui)
         rgb_matrix_set_color(HS_RGB_INDEX_WIN_LOCK, 0x20, 0x20, 0x20);
@@ -1280,6 +1353,8 @@ void hs_reset_settings(void) {
 
 void lpwr_wakeup_hook(void) {
     hs_mode_scan(false, confinfo.devs, confinfo.last_btdevs);
+
+    iso_ind_wake_timer = timer_read32() | 1; // Aufwach-Anzeige starten (nie 0)
 
     if (rgb_matrix_get_val() != 0)
         gpio_write_pin_high(LED_POWER_EN_PIN);
