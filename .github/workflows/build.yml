@@ -1,0 +1,27 @@
+name: Build firmware
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build with build.sh (Docker)
+        run: bash ./build.sh
+
+      - name: Copy firmware
+        run: cp "$HOME/qmk-monsgeek/monsgeek_m1_v5_m1_v5_uk_default.bin" m1_v5_via_iso.bin
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: firmware
+          path: m1_v5_via_iso.bin
+          if-no-files-found: error
