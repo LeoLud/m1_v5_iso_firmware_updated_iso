@@ -697,9 +697,9 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 confinfo.bat_ind_off = !confinfo.bat_ind_off;
                 // green flash = battery LEDs on, red flash = off
                 if (confinfo.bat_ind_off) {
-                    rgb_matrix_hs_indicator_set(0xFF, (RGB){0x40, 0x00, 0x00}, 250, 1);
+                    rgb_matrix_hs_indicator_set(0xFF, (RGB){.r = 0x40, .g = 0x00, .b = 0x00}, 250, 1);
                 } else {
-                    rgb_matrix_hs_indicator_set(0xFF, (RGB){0x00, 0x40, 0x00}, 250, 1);
+                    rgb_matrix_hs_indicator_set(0xFF, (RGB){.r = 0x00, .g = 0x40, .b = 0x00}, 250, 1);
                 }
                 eeconfig_confinfo_update(confinfo.raw);
             }
@@ -1094,7 +1094,7 @@ void bat_indicators(void) {
         if (!confinfo.bat_ind_off) rgb_matrix_set_color(HS_MATRIX_BLINK_INDEX_BAT, 0x00, 0xFF, 0x00);
     } else if (*md_getp_bat() <= BATTERY_CAPACITY_LOW) {
 
-        if (!confinfo.bat_ind_off) rgb_matrix_hs_bat_set(HS_MATRIX_BLINK_INDEX_BAT, (RGB){0xFF, 0x00, 0x00}, 250, 1);
+        if (!confinfo.bat_ind_off) rgb_matrix_hs_bat_set(HS_MATRIX_BLINK_INDEX_BAT, (RGB){.r = 0xFF, .g = 0x00, .b = 0x00}, 250, 1);
 
         if (*md_getp_bat() <= BATTERY_CAPACITY_STOP) {
             if (!battery_process_time) {
