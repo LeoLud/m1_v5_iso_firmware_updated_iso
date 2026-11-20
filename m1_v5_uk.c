@@ -544,18 +544,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 }
             }
         } break;
-        case RGB_SAI: {
-            if (record->event.pressed) {
-                record_color_hsv(true);
-            }
-            return false;
-        } break;
-        case RGB_SAD: {
-            if (record->event.pressed) {
-                record_color_hsv(false);
-            }
-            return false;
-        } break;
         case TO(_BL): {
             if (record->event.pressed) {
                 rgb_matrix_hs_set_remain_time(HS_RGB_BLINK_INDEX_MAC, 0);
@@ -650,13 +638,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 }
                 record_rgbmatrix_increase(&(confinfo.record_last_mode));
                 eeconfig_confinfo_update(confinfo.raw);
-            }
-
-            return false;
-        } break;
-        case RGB_HUI: {
-            if (record->event.pressed) {
-                record_color_hsv(true);
             }
 
             return false;
