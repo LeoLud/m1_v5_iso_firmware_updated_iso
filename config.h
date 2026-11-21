@@ -93,3 +93,7 @@
 #define EECONFIG_USER_DATA_SIZE    (EECONFIG_RGBREC_USE_SIZE + EECONFIG_CONFINFO_USE_SIZE)
 #define RGBREC_EECONFIG_ADDR       (uint8_t *)(EECONFIG_USER_DATABLOCK)
 #define CONFINFO_EECONFIG_ADDR     (uint32_t *)((uint32_t)RGBREC_EECONFIG_ADDR + (uint32_t)EECONFIG_RGBREC_USE_SIZE)
+
+/* ISO-Port: Gammakorrektur für sattere Farben (siehe m1_v5_uk.c).
+ * Zum Abschalten diese Zeile auskommentieren. */
+#define ISO_GAMMA_ENABLE

@@ -1255,7 +1255,7 @@ static void iso_ind_draw(uint8_t led_min, uint8_t led_max) {
 #endif
 }
 
-bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
+static bool iso_indicators_advanced_impl(uint8_t led_min, uint8_t led_max) {
 
     if (rgb_matrix_indicators_advanced_user(led_min, led_max) != true) {
 
@@ -1344,4 +1344,61 @@ void lpwr_wakeup_hook(void) {
         gpio_write_pin_low(LED_POWER_EN_PIN);
 
     gpio_write_pin_high(HS_LED_BOOSTING_PIN);
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Gammakorrektur (ISO-Port)
+ *
+ * Die LEDs bekommen ihre Werte sonst linear. Weil das Auge Helligkeit nicht
+ * linear wahrnimmt, wirken Mischfarben (Lila, Himmelblau, Türkis ...) blass.
+ * Hier wird jeder Farbkanal kurz vor der Ausgabe mit Gamma 2.2 umgerechnet.
+ * Gilt für alles: Effekte, Statusanzeigen und OpenRGB.
+ *
+ * Abschalten: in config.h die Zeile "#define ISO_GAMMA_ENABLE" auskommentieren.
+ * ------------------------------------------------------------------------- */
+#ifdef ISO_GAMMA_ENABLE
+extern rgb_led_t rgb_matrix_ws2812_array[];
+
+static const uint8_t PROGMEM iso_gamma_table[256] = {
+      0,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+      1,   1,   1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,
+      3,   3,   3,   3,   3,   4,   4,   4,   4,   5,   5,   5,   5,   6,   6,   6,
+      6,   7,   7,   7,   8,   8,   8,   9,   9,   9,  10,  10,  11,  11,  11,  12,
+     12,  13,  13,  13,  14,  14,  15,  15,  16,  16,  17,  17,  18,  18,  19,  19,
+     20,  20,  21,  22,  22,  23,  23,  24,  25,  25,  26,  26,  27,  28,  28,  29,
+     30,  30,  31,  32,  33,  33,  34,  35,  35,  36,  37,  38,  39,  39,  40,  41,
+     42,  43,  43,  44,  45,  46,  47,  48,  49,  49,  50,  51,  52,  53,  54,  55,
+     56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  69,  70,  71,
+     73,  74,  75,  76,  77,  78,  79,  81,  82,  83,  84,  85,  87,  88,  89,  90,
+     91,  93,  94,  95,  97,  98,  99, 100, 102, 103, 105, 106, 107, 109, 110, 111,
+    113, 114, 116, 117, 119, 120, 121, 123, 124, 126, 127, 129, 130, 132, 133, 135,
+    137, 138, 140, 141, 143, 145, 146, 148, 149, 151, 153, 154, 156, 158, 159, 161,
+    163, 165, 166, 168, 170, 172, 173, 175, 177, 179, 181, 182, 184, 186, 188, 190,
+    192, 194, 196, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215, 217, 219, 221,
+    223, 225, 227, 229, 231, 234, 236, 238, 240, 242, 244, 246, 248, 251, 253, 255
+};
+
+// Letzter von uns ausgegebener Wert je LED. Unverändert = in diesem Durchlauf
+// nicht neu gezeichnet, dann nicht nochmal korrigieren.
+static rgb_led_t iso_gamma_shadow[RGB_MATRIX_LED_COUNT];
+
+static void iso_gamma_apply(uint8_t led_min, uint8_t led_max) {
+    for (uint8_t i = led_min; i < led_max && i < RGB_MATRIX_LED_COUNT; i++) {
+        rgb_led_t *led = &rgb_matrix_ws2812_array[i];
+        if (led->r == iso_gamma_shadow[i].r && led->g == iso_gamma_shadow[i].g && led->b == iso_gamma_shadow[i].b) continue;
+        led->r = pgm_read_byte(&iso_gamma_table[led->r]);
+        led->g = pgm_read_byte(&iso_gamma_table[led->g]);
+        led->b = pgm_read_byte(&iso_gamma_table[led->b]);
+        iso_gamma_shadow[i] = *led;
+    }
+}
+#endif
+
+bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
+    bool ret = iso_indicators_advanced_impl(led_min, led_max);
+#ifdef ISO_GAMMA_ENABLE
+    iso_gamma_apply(led_min, led_max);
+#endif
+    return ret;
 }
